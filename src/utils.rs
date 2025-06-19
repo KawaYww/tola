@@ -141,7 +141,11 @@ pub fn compile_post(path: &Path, cli: &Cli) -> Result<()> {
     let output_path = output_dir.join(relative_path);
     create_dir_all(&output_path)?;
 
-    let html_path = output_path.join("index.html");
+    let html_path = if path.file_name().is_some_and(|p| p == "home.typ") {
+        current_dir.join(&cli.output_dir).join("index.html")
+    } else {
+        output_path.join("index.html")
+    };
 
     let output = Command::new("typst")
         .args(["compile", "--features", "html", "--format", "html"])

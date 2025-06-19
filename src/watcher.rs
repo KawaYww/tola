@@ -79,6 +79,6 @@ fn should_process_event(event: &Event) -> bool {
 }
 
 fn handle_files(paths: &[PathBuf], cli: &Cli) -> Result<()> {
-    log!("watcher", "Detected changes in: {:?}", paths);
+    // log!("watcher", "Detected changes in: {:?}", paths);
     utils::process_watched_files(paths, cli).context("[Watcher] Failed to process changed files")
 }

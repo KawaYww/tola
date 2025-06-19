@@ -35,10 +35,6 @@ pub enum Commands {
         /// enable watch
         #[arg(short, long, default_value_t = true)]
         watch: bool,
-
-        /// pre-built the site before starting server
-        #[arg(short, long, default_value_t = true)]
-        pre_built: bool,
     },
 
     /// Deletes the output directory if there is one and rebuilds the site

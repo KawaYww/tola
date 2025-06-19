@@ -64,8 +64,8 @@ You should keep the directory structure identical to the below:
 ```
 
 Files under the `content/` directory are mapped to their respective routes:  
-e.g., `content/posts/examples/aaa.typ` -> `https://127.0.0.1:8080/posts/examples/aaa`  
-(`home.typ` will be specially included in `index.html`)  
+e.g., `content/posts/examples/aaa.typ` -> `http://127.0.0.1:8282/posts/examples/aaa`  
+(`content/home.typ` will be specially compiled into `http://127.0.0.1:8282/index.html`)  
 
 ```text
 http://127.0.0.1:8000:

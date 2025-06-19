@@ -2,16 +2,17 @@
 
 ## Introduction
 
-`Tola`: An opinionated static site generator for Typst-based blog.  
+`Tola`: A static site generator for Typst-based blog.  
 
-Why opinionated? Because this tool will not provide any Typst file as template, you should write your own Typst code for html side.  
+Note: this tool will not provide any Typst template, you should write your own Typst code for html side.  
 `Tola` merely acts as a glue layer, handling the most tedious tasks unrelated to Typst itself.  
-Please focus on Typst code itself  
 
 e.g.,  
 - watch changes in multiple files and recompile  
 - provide a local server to preview  
 - to prevent users from typing tedious/repetitive command options, like `typst compile --features html --format html --root ./  --font-path ./ xxx.typ xxx/index.html`  
+
+Please focus on Typst code itself(with `Tola`!)  
 
 ## Installation
 

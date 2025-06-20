@@ -16,9 +16,9 @@ Please focus on Typst code itself(with `Tola`!)
 
 ## Installation
 
-1. typing `cargo install tola` to get `Tola`
-2. install the binary in [release](https://github.com/KawaYww/tola/releases) page
-
+1. Typing `cargo install tola` to get `Tola`.
+2. Install the binary in [release page](https://github.com/KawaYww/tola/releases).
+3. For Nix users: A flake.nix already exists in the repo root.
 
 ## Usage
 

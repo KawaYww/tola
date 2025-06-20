@@ -1,6 +1,6 @@
 [package]
 name = "tola"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2024"
 description = "A static site generator for typst-based blog"
 

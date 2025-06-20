@@ -17,11 +17,13 @@ pub fn build_site(cli: &Cli) -> Result<()> {
         // Process all posts
         let posts_handle = s.spawn(|| {
             utils::process_files(&cli.content_dir,  cli, &|suffix| suffix == "typ", &compile_post)
+                .context("Failed to compile all posts")
         });
 
         // Copy assets
         let assets_handle = s.spawn(|| {
-            utils::process_files(&cli.assets_dir,  cli, &|_| true, &|path, cli| copy_asset(path, cli, false)).context("")
+            utils::process_files(&cli.assets_dir,  cli, &|_| true, &|path, cli| copy_asset(path, cli, false))
+                .context("Failed to copy all assets")
         });
 
         posts_handle.join().map_err(|e| anyhow!("{:?}", e))??;

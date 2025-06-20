@@ -27,15 +27,29 @@ async fn main() -> Result<()> {
             Commands::Serve { .. } => {
                 let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-                let server_handle = spawn({
-                    let cli = cli.clone();
-                    async move {
-                        start_server(&cli).await.unwrap();
-                    }
-                });
                 let watcher_handle = spawn_blocking({
                     let cli = cli.clone();
                     move || watch_for_changes_blocking(&cli, shutdown_rx)
+                });
+
+                let server_handle = spawn({
+                    let cli = cli.clone();
+                    async move {
+                        let mut restart_flag = true;
+                        while restart_flag {
+                            match start_server(&cli).await {
+                                Err(e) => {
+                                    let timeout_secs = 2;
+                                    log!("error", "Failed to start server: {:?}", e);
+                                    for i in (0..=timeout_secs).rev() {
+                                        log!("tips", "Automatically trying to start it again in {} seconds", i);
+                                        tokio::time::sleep(Duration::from_secs(i)).await;
+                                    }
+                                }
+                                Ok(()) => restart_flag = false,
+                            };
+                        }
+                    }
                 });
 
                 signal::ctrl_c().await?;

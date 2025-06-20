@@ -169,7 +169,7 @@ pub fn compile_post(path: &Path, cli: &Cli) -> Result<()> {
         fs::write(&html_path, content)?;
     }
 
-    log!("content", "{}", path.display());
+    log!("content", "{}", path.strip_prefix(&current_dir)?.display());
 
     Ok(())
 }
@@ -205,7 +205,7 @@ pub fn copy_asset(path: &Path, cli: &Cli, should_wait_until_stable: bool) -> Res
     }
     fs::copy(path, &output_path)?;
 
-    log!("assets", "{}", output_path.display());
+    log!("assets", "{}", output_path.strip_prefix(&current_dir)?.display());
 
     Ok(())
 }

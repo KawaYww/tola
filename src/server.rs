@@ -21,20 +21,13 @@ use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
 pub async fn start_server(cli: &Cli) -> Result<()> {
+    build_site(cli)?;
+
     let Some(cli::Commands::Serve { interface, port, .. }) = &cli.command else {
         panic!("Wrong internal implementation, I think this wouldn't occur")
     };
     let interface = IpAddr::from_str(interface)?;
     let port = *port;
-
-    if !cli.output_dir.exists() {
-        log!(
-            "server",
-            "Output directory '{}' not found. Rebuild the site",
-            cli.output_dir.display()
-        );
-        build_site(cli)?;
-    }
 
     let addr = SocketAddr::new(interface, port);
 

@@ -1,6 +1,6 @@
 use crate::{cli::Cli, log, utils::{self, compile_post, copy_asset}};
-use anyhow::{Context, Result};
-use std::fs;
+use anyhow::{anyhow, Context, Result};
+use std::{fs, thread};
 
 pub fn build_site(cli: &Cli) -> Result<()> {
     // Clear output directory
@@ -13,21 +13,26 @@ pub fn build_site(cli: &Cli) -> Result<()> {
         })?;
     }
 
-    // // Copy assets
-    // utils::copy_dir_recursively(&cli.assets_dir, &cli.output_dir.join(&cli.assets_dir))
-    //     .context("[Builder] Failed to copy assets")?;
+    thread::scope(|s| {
+        // Process all posts
+        let posts_handle = s.spawn(|| {
+            utils::process_files(&cli.content_dir,  cli, &|suffix| suffix == "typ", &compile_post)
+        });
 
-    // Process all posts
-    utils::process_files(&cli.content_dir,  cli, &|suffix| suffix == "typ", &compile_post)?;
+        // Copy assets
+        let assets_handle = s.spawn(|| {
+            utils::process_files(&cli.assets_dir,  cli, &|_| true, &|path, cli| copy_asset(path, cli, false)).context("")
+        });
 
-    // // Copy assets
-    utils::process_files(&cli.assets_dir,  cli, &|_| true, &|path, cli| copy_asset(path, cli, false))?;
+        posts_handle.join().map_err(|e| anyhow!("{:?}", e))??;
+        assets_handle.join().map_err(|e| anyhow!("{:?}", e))??;
 
-    log!(
-        "builder",
-        "Successfully generated site in: {}",
-        cli.output_dir.display()
-    );
+        log!(
+            "builder",
+            "Successfully generated site in: {}",
+            cli.output_dir.display()
+        );
 
-    Ok(())
+        Ok(())
+    })
 }

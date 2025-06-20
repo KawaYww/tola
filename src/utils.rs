@@ -64,7 +64,7 @@ where
 {
     fs::read_dir(dir)?
         .collect::<Vec<_>>()
-        .into_par_iter()
+        .par_iter()
         .flatten()
         .try_for_each(|entry| {
             let path = entry.path();
@@ -213,7 +213,7 @@ pub fn copy_asset(path: &Path, cli: &Cli, should_wait_until_stable: bool) -> Res
 fn wait_until_stable(path: &Path, max_retries: usize) -> Result<()> {
     let mut last_size = fs::metadata(path)?.len();
     let mut retries = 0;
-    let timeout = Duration::from_millis(100);
+    let timeout = Duration::from_millis(50);
     
     while retries < max_retries {
         thread::sleep(timeout);

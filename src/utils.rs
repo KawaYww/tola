@@ -130,13 +130,15 @@ pub fn compile_post(path: &Path, cli: &Cli) -> Result<()> {
     let content_dir = current_dir.join(&cli.content_dir);
     let output_dir = current_dir.join(&cli.output_dir);
 
+    log!("content", "{}", path.strip_prefix(&current_dir)?.display());
+
     // println!("{:?} {:?}", path, &content_dir);
     let relative_path = path
         .strip_prefix(&content_dir)?
         .to_str()
-        .ok_or_else(|| anyhow::anyhow!("Invalid path"))?
+        .ok_or(anyhow::anyhow!("Invalid path"))?
         .strip_suffix(".typ")
-        .ok_or_else(|| anyhow::anyhow!("Not a .typ file"))?;
+        .ok_or(anyhow::anyhow!("Not a .typ file"))?;
 
     let output_path = output_dir.join(relative_path);
     create_dir_all(&output_path)?;
@@ -169,7 +171,6 @@ pub fn compile_post(path: &Path, cli: &Cli) -> Result<()> {
         fs::write(&html_path, content)?;
     }
 
-    log!("content", "{}", path.strip_prefix(&current_dir)?.display());
 
     Ok(())
 }
@@ -184,11 +185,13 @@ pub fn copy_asset(path: &Path, cli: &Cli, should_wait_until_stable: bool) -> Res
     let assets_dir = current_dir.join(&cli.assets_dir);
     let output_dir = current_dir.join(&cli.output_dir).join(&cli.assets_dir);
 
+    log!("assets", "{}", path.strip_prefix(&current_dir)?.display());
+
     // println!("{:?} {:?}", path, &assets_dir);
     let relative_path = path
         .strip_prefix(&assets_dir)?
         .to_str()
-        .ok_or_else(|| anyhow::anyhow!("Invalid path"))?;
+        .ok_or(anyhow::anyhow!("Invalid path"))?;
 
     let output_path = output_dir.join(relative_path);
 
@@ -205,7 +208,6 @@ pub fn copy_asset(path: &Path, cli: &Cli, should_wait_until_stable: bool) -> Res
     }
     fs::copy(path, &output_path)?;
 
-    log!("assets", "{}", output_path.strip_prefix(&current_dir)?.display());
 
     Ok(())
 }

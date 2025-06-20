@@ -25,6 +25,7 @@ pub fn watch_for_changes_blocking(cli: &Cli, mut shutdown_rx: oneshot::Receiver<
             "[Watcher] Failed to watch directory: {}",
             cli.content_dir.display()
         ))?;
+
     watcher
         .watch(&cli.assets_dir, RecursiveMode::Recursive)
         .context(format!(
@@ -33,8 +34,7 @@ pub fn watch_for_changes_blocking(cli: &Cli, mut shutdown_rx: oneshot::Receiver<
         ))?;
 
     let mut last_event_time = Instant::now();
-    let debounce_duration = Duration::from_millis(500);
-    let poll_timeout = Duration::from_millis(100);
+    let debounce_duration = Duration::from_millis(50);
 
     log!(
         "watcher",
@@ -42,28 +42,21 @@ pub fn watch_for_changes_blocking(cli: &Cli, mut shutdown_rx: oneshot::Receiver<
         cli.content_dir.display()
     );
 
-    loop {
-        match rx.recv_timeout(poll_timeout) {
-            Ok(Ok(event)) => {
+    for res in rx {
+        match res {
+            Ok(event) => {
                 if should_process_event(&event) && last_event_time.elapsed() >= debounce_duration {
                     last_event_time = Instant::now();
                     match handle_files(&event.paths, cli) {
                         Ok(()) => (),
                         Err(e) => log!("watcher", "Error: {:?}", e),
-                    };
+                    }
                 }
-            }
-            Ok(Err(e)) => {
+            },
+            Err(e) => {
                 log!("watcher", "Error: {:?}", e);
-            }
-            Err(mpsc::RecvTimeoutError::Disconnected) => {
-                log!("watcher", "Channel disconnected");
-                break;
-            }
-            Err(mpsc::RecvTimeoutError::Timeout) => {
-                // Do not need show message here
-            }
-        }
+            },
+        };
 
         if shutdown_rx.try_recv().is_ok() {
             log!("watcher", "Received shutdown signal");

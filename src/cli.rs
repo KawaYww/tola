@@ -44,3 +44,13 @@ pub enum Commands {
         minify: bool,
     },
 }
+
+impl Cli {
+    pub fn command_is_serve(&self) -> bool {
+        matches!(self.command, Some(Commands::Serve { .. }))
+    }
+
+    pub fn command_is_built(&self) -> bool {
+        matches!(self.command, Some(Commands::Built { .. }))
+    }
+}

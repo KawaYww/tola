@@ -21,7 +21,16 @@
         # module parameters provide easy access to attributes of the same
         # system.
 
-        packages.default = pkgs.callPackage ./default.nix { };
+        packages = {
+          default = pkgs.callPackage ./default.nix { };
+          static = pkgs.pkgsStatic.callPackage ./default.nix { };
+          x86 = pkgs.pkgsCross.gnu64.callPackage ./default.nix { };
+          x86-static = pkgs.pkgsCross.gnu64.pkgsStatic.callPackage ./default.nix { };
+          aarch64 = pkgs.pkgsCross.aarch64-multiplatform.callPackage ./default.nix { };
+          aarch64-static = pkgs.pkgsCross.aarch64-multiplatform.pkgsStatic.callPackage ./default.nix { };
+          windows = pkgs.pkgsCross.mingwW64.callPackage ./default.nix { };
+        };
+        
       };
       flake = {
         # The usual flake attributes can be defined here, including system-

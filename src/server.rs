@@ -78,12 +78,16 @@ async fn handle_path(uri: Uri, base_path: PathBuf) -> impl IntoResponse {
                 let href = format!("{}/{}", uri.path().trim_end_matches('/'), name);
                 file_list.push_str(&format!("<li><a href='{}'>{}</a></li>", href, name));
             }
-            return Html(format!(
-                "<html><body><h1>Directory: {}</h1><ul>{}</ul></body></html>",
-                uri.path(),
-                file_list
-            ))
-            .into_response();
+            let html_content = Html(format!(r#"
+                <html>
+                    <head><style>table {{ border-collapse: collapse; }} td {{ padding: 8px; }}</style></head>
+                    <body>
+                        <h1>Directory: {}</h1>
+                        <table>{}</table>
+                    </body>
+                </html>
+            "#, uri.path(), file_list));
+            return html_content.into_response();
         }
     }
     handle_404().await.into_response()

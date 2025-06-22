@@ -16,7 +16,7 @@ pub fn build_site(cli: &'static Cli) -> Result<()> {
     thread::scope(|s| {
         // Process all posts
         let posts_handle = s.spawn(|| {
-            utils::process_files(&cli.content_dir,  cli, &|suffix| suffix == "typ", &compile_post)
+            utils::process_files(&cli.content_dir,  cli, &|path| path.extension().is_some_and(|ext| ext == "typ"), &compile_post)
                 .context("Failed to compile all posts")
         });
 

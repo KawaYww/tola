@@ -11,7 +11,6 @@ use minify_html::{Cfg, minify};
 use rayon::prelude::*;
 use std::{
     env,
-    ffi::OsStr,
     fs::{self, create_dir_all},
     io::stdout,
     path::{Path, PathBuf},
@@ -59,7 +58,7 @@ pub fn _copy_dir_recursively(src: &Path, dst: &Path) -> Result<()> {
 
 pub fn process_files<P, F>(dir: &Path, cli: &Cli, p: &P, f: &F) -> Result<()>
 where
-    P: Fn(&OsStr) -> bool + Sync,
+    P: Fn(&PathBuf) -> bool + Sync,
     F: Fn(&Path, &Cli) -> Result<()> + Sync,
 {
     fs::read_dir(dir)?
@@ -70,7 +69,7 @@ where
             let path = entry.path();
             if path.is_dir() {
                 process_files(&path, cli, p, f)
-            } else if path.is_file() && path.extension().is_some_and(p) {
+            } else if path.is_file() && p(&path) {
                 f(&path, cli)
             } else {
                 Ok(())

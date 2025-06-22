@@ -42,7 +42,7 @@ pub enum Commands {
     },
 
     /// Deletes the output directory if there is one and rebuilds the site
-    Built {
+    Build {
     },
 }
 
@@ -52,6 +52,6 @@ impl Cli {
     }
 
     pub fn command_is_built(&self) -> bool {
-        matches!(self.command, Some(Commands::Built { .. }))
+        matches!(self.command, Some(Commands::Build { .. }))
     }
 }

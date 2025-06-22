@@ -22,7 +22,6 @@ use tower_http::services::ServeDir;
 
 pub async fn start_server(cli: &'static Cli) -> Result<()> {
     build_site(cli)?;
-    // println!("AAAAAAAAAAAAAA");
 
     let Some(cli::Commands::Serve { interface, port, .. }) = &cli.command else {
         panic!("Wrong internal implementation, I think this wouldn't occur")

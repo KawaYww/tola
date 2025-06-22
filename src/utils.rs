@@ -183,7 +183,7 @@ pub fn copy_asset(path: &Path, cli: &Cli, should_wait_until_stable: bool) -> Res
 
     let current_dir = env::current_dir()?;
     let assets_dir = current_dir.join(&cli.assets_dir);
-    let output_dir = current_dir.join(&cli.output_dir).join(&cli.assets_dir);
+    let output_dir = current_dir.join(&cli.output_dir);
 
     log!("assets", "{}", path.strip_prefix(&current_dir)?.display());
 

@@ -29,6 +29,7 @@
           aarch64 = pkgs.pkgsCross.aarch64-multiplatform.callPackage ./default.nix { };
           aarch64-static = pkgs.pkgsCross.aarch64-multiplatform.pkgsStatic.callPackage ./default.nix { };
           windows = pkgs.pkgsCross.mingwW64.callPackage ./default.nix { };
+          darwin = pkgs.pkgsCross.aarch64-darwin.callPackage ./default.nix { };
         };
         
       };

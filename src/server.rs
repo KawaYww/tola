@@ -20,7 +20,7 @@ use std::{
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
-pub async fn start_server(cli: &Cli) -> Result<()> {
+pub async fn start_server(cli: &'static Cli) -> Result<()> {
     build_site(cli)?;
     // println!("AAAAAAAAAAAAAA");
 

@@ -21,24 +21,23 @@ async fn main() -> Result<()> {
     utils::check_typst_installed()?;
 
     if cli.command_is_built() {
-        build_site(&cli)?
+        build_site(cli)?
     }
     
 
     if cli.command_is_serve() {
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        std::thread::spawn({
-            move || watch_for_changes_blocking(&cli, shutdown_rx)
-        });
+        std::thread::spawn(
+            move || watch_for_changes_blocking(cli, shutdown_rx)
+        );
 
         spawn({
-            let cli = cli.clone();
             let timeout_secs = 2;
             let mut restart_flag = true;
             async move {
                 while restart_flag {
-                    match start_server(&cli).await {
+                    match start_server(cli).await {
                         Ok(()) => restart_flag = false,
                         Err(e) => {
                             log!("error", "Failed to start server: {:?}", e);

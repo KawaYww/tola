@@ -1,7 +1,7 @@
 use crate::{cli::Commands, log, utils};
 use anyhow::{Context, Result};
 use notify::{Event, EventKind, RecursiveMode, Watcher};
-use std::{mpsc, time::{Duration, Instant}};
+use std::{path::PathBuf, time::{Duration, Instant}};
 use tokio::sync::oneshot;
 
 use super::cli::Cli;
@@ -11,7 +11,7 @@ pub fn watch_for_changes_blocking(cli: &'static Cli, mut shutdown_rx: oneshot::R
         return Ok(());
     }
     
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) = std::sync::mpsc::channel();
     let mut watcher =
         notify::recommended_watcher(tx).context("[watcher] Failed to create file watcher")?;
 

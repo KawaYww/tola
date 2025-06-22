@@ -2,7 +2,7 @@ use crate::{cli::Cli, log, utils::{self, compile_post, copy_asset}};
 use anyhow::{anyhow, Context, Result};
 use std::{fs, thread};
 
-pub fn build_site(cli: &Cli) -> Result<()> {
+pub fn build_site(cli: &'static Cli) -> Result<()> {
     // Clear output directory
     if cli.output_dir.exists() {
         fs::remove_dir_all(&cli.output_dir).with_context(|| {

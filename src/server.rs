@@ -80,10 +80,14 @@ async fn handle_path(uri: Uri, base_path: PathBuf) -> impl IntoResponse {
             }
             let html_content = Html(format!(r#"
                 <html>
-                    <head><style>table {{ border-collapse: collapse; }} td {{ padding: 8px; }}</style></head>
+                    <head><style>
+                        * {{ background: #273748; color: white;  }}
+                        li {{ font-weight: bold; }}
+                        table {{ border-collapse: collapse; }} td {{ padding: 8px; }}
+                    </style></head>
                     <body>
                         <h1>Directory: {}</h1>
-                        <table>{}</table>
+                        {}
                     </body>
                 </html>
             "#, uri.path(), file_list));

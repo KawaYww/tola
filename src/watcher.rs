@@ -17,19 +17,19 @@ pub fn watch_for_changes_blocking(cli: &Cli, mut shutdown_rx: oneshot::Receiver<
     
     let (tx, rx) = mpsc::channel();
     let mut watcher =
-        notify::recommended_watcher(tx).context("[Watcher] Failed to create file watcher")?;
+        notify::recommended_watcher(tx).context("[watcher] Failed to create file watcher")?;
 
     watcher
         .watch(&cli.content_dir, RecursiveMode::Recursive)
         .context(format!(
-            "[Watcher] Failed to watch directory: {}",
+            "[watcher] Failed to watch directory: {}",
             cli.content_dir.display()
         ))?;
 
     watcher
         .watch(&cli.assets_dir, RecursiveMode::Recursive)
         .context(format!(
-            "[Watcher] Failed to watch directory: {}",
+            "[watcher] Failed to watch directory: {}",
             cli.assets_dir.display()
         ))?;
 
@@ -73,5 +73,5 @@ fn should_process_event(event: &Event) -> bool {
 
 fn handle_files(paths: &[PathBuf], cli: &Cli) -> Result<()> {
     // log!("watcher", "Detected changes in: {:?}", paths);
-    utils::process_watched_files(paths, cli).context("[Watcher] Failed to process changed files")
+    utils::process_watched_files(paths, cli).context("Failed to process changed files")
 }

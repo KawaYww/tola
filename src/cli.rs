@@ -16,6 +16,10 @@ pub struct Cli {
     #[arg(short, long, default_value = "assets")]
     pub assets_dir: PathBuf,
 
+    /// Minify the html content
+    #[arg(short, long)]
+    pub minify: bool,
+
     #[command(subcommand)]
     pub command: Option<Commands>,
 }
@@ -39,9 +43,6 @@ pub enum Commands {
 
     /// Deletes the output directory if there is one and rebuilds the site
     Built {
-        /// The port you should provide
-        #[arg(short, long)]
-        minify: bool,
     },
 }
 

@@ -1,5 +1,5 @@
 use crate::{
-    cli::{self, Cli},
+    cli::Cli,
     log,
 };
 use anyhow::{bail, Context, Result};
@@ -78,13 +78,13 @@ where
         })
 }
 
-pub fn process_posts_in_parallel(files: &[PathBuf], cli: &Cli) -> Result<()> {
+pub fn process_posts_in_parallel(files: &[&Path], cli: &Cli) -> Result<()> {
     files
         .par_iter()
         .try_for_each(|path| compile_post(path, cli))
 }
 
-pub fn copy_assets_in_parallel(files: &[PathBuf], cli: &Cli, should_wait_until_stable: bool) -> Result<()> {
+pub fn copy_assets_in_parallel(files: &[&Path], cli: &Cli, should_wait_until_stable: bool) -> Result<()> {
     files.par_iter().try_for_each(|path| copy_asset(path, cli, should_wait_until_stable))
 }
 
@@ -92,7 +92,7 @@ pub fn process_watched_files(files: &[PathBuf], cli: &Cli) -> Result<()> {
     let posts_files: Vec<_> = files
         .par_iter()
         .filter(|p| p.is_file() && p.extension().and_then(|s| s.to_str()) == Some("typ"))
-        .cloned()
+        .map(|p| p.as_path())
         .collect();
 
     // println!("Before");
@@ -106,7 +106,7 @@ pub fn process_watched_files(files: &[PathBuf], cli: &Cli) -> Result<()> {
                     .unwrap()
                     .starts_with(&cli.assets_dir)
         })
-        .cloned()
+        .map(|p| p.as_path())
         .collect();
 
     // println!("{:?}", assets_files);
@@ -164,7 +164,7 @@ pub fn compile_post(path: &Path, cli: &Cli) -> Result<()> {
         anyhow::bail!("Failed to compile {}: {}", path.display(), error_msg);
     }
 
-    if let Some(cli::Commands::Built { minify: true }) = cli.command {
+    if cli.minify {
         let html_content = fs::read_to_string(&html_path)?;
         let minified_content = minify(html_content.as_bytes(), &Cfg::new());
         let content = String::from_utf8_lossy(&minified_content).to_string();

@@ -8,7 +8,7 @@
 
 rustPlatform.buildRustPackage (finalAttrs: rec {
   pname = "tola";
-  version = "0.4.7";
+  version = "0.4.8";
 
   src = ./.;
   

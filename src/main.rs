@@ -17,6 +17,7 @@ use watcher::watch_for_changes_blocking;
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
+    let cli: &'static Cli = Box::leak(Box::new(cli));
     utils::check_typst_installed()?;
 
     if cli.command_is_built() {
@@ -28,7 +29,6 @@ async fn main() -> Result<()> {
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
         std::thread::spawn({
-            let cli = cli.clone();
             move || watch_for_changes_blocking(&cli, shutdown_rx)
         });
 

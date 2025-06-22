@@ -1,16 +1,12 @@
 use crate::{cli::Commands, log, utils};
 use anyhow::{Context, Result};
 use notify::{Event, EventKind, RecursiveMode, Watcher};
-use std::{
-    path::PathBuf,
-    sync::mpsc,
-    time::{Duration, Instant},
-};
+use std::{mpsc, time::{Duration, Instant}};
 use tokio::sync::oneshot;
 
 use super::cli::Cli;
 
-pub fn watch_for_changes_blocking(cli: &Cli, mut shutdown_rx: oneshot::Receiver<()>) -> Result<()> {
+pub fn watch_for_changes_blocking(cli: &'static Cli, mut shutdown_rx: oneshot::Receiver<()>) -> Result<()> {
     if let Some(Commands::Serve { watch: false, .. }) = cli.command {
         return Ok(());
     }
@@ -45,12 +41,16 @@ pub fn watch_for_changes_blocking(cli: &Cli, mut shutdown_rx: oneshot::Receiver<
     for res in rx {
         match res {
             Ok(event) => {
-                if should_process_event(&event) && last_event_time.elapsed() >= debounce_duration {
+                if should_process_event(&event) && last_event_time.elapsed() > debounce_duration {
                     last_event_time = Instant::now();
-                    match handle_files(&event.paths, cli) {
-                        Ok(()) => (),
-                        Err(e) => log!("watcher", "Error: {:?}", e),
-                    }
+                    std::thread::spawn(move || {
+
+                        match handle_files(&event.paths, cli) {
+                            Ok(()) => (),
+                            Err(e) => log!("watcher", "Error: {:?}", e),
+                        }
+
+                    });
                 }
             },
             Err(e) => {

@@ -14,6 +14,12 @@ e.g.,
 
 Please focus on Typst code itself(with `Tola`!)  
 
+## Examples
+
+[My blog](https://kawayww.com)
+![kawayww.com](/screenshots/my-blog.png)  
+
+
 ## Installation
 
 1. Typing `cargo install tola` to get `Tola`.

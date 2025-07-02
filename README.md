@@ -16,9 +16,10 @@ Please focus on Typst code itself(with `Tola`!)
 
 ## Examples
 
-[My blog](https://kawayww.com)
-![kawayww.com](/screenshots/my-blog.png)  
-
+[My blog](https://kawayww.com):  
+![home](/screenshots/home.heic)  
+![figure1](/screenshots/figure1.heic)  
+![figure2](/screenshots/figure2.heic)  
 
 ## Installation
 

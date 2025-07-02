@@ -17,9 +17,9 @@ Please focus on Typst code itself(with `Tola`!)
 ## Examples
 
 [My blog](https://kawayww.com):  
-![home](/screenshots/home.heic)  
-![figure1](/screenshots/figure1.heic)  
-![figure2](/screenshots/figure2.heic)  
+![home](/screenshots/home.avif)  
+![figure1](/screenshots/figure1.avif)  
+![figure2](/screenshots/figure2.avif)  
 
 ## Installation
 

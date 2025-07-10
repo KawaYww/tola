@@ -1,5 +1,5 @@
 use std::{env, fs, path::{Path, PathBuf}, process::Command};
-use anyhow::{Result, Context};
+use anyhow::{anyhow, Context, Result};
 use crate::{config::SiteConfig, log};
 use crate::utils::watcher::wait_until_stable;
 use rayon::prelude::*;
@@ -32,13 +32,13 @@ pub fn process_files<P, F>(dir: &Path, config: &SiteConfig, p: &P, f: &F) -> Res
 where
     P: Fn(&PathBuf) -> bool + Sync,
     F: Fn(&Path, &SiteConfig) -> Result<()> + Sync,
-{
+{   
     fs::read_dir(dir)?
         .collect::<Vec<_>>()
         .par_iter()
         .flatten()
-        .try_for_each(|entry| {
-            let path = entry.path();
+        .map(|entry| entry.path())
+        .try_for_each(|path| {
             if path.is_dir() {
                 process_files(&path, config, p, f)
             } else if path.is_file() && p(&path) {
@@ -93,21 +93,21 @@ pub fn process_watched_files(files: &[PathBuf], config: &SiteConfig) -> Result<(
     Ok(())
 }
 
-pub fn compile_post(path: &Path, config: &SiteConfig) -> Result<()> {
+pub fn compile_post(post_path: &Path, config: &SiteConfig) -> Result<()> {
     let content_dir = &config.build.content_dir;
     let output_dir = &config.build.output_dir;
 
-    let relative_path = path
+    let relative_path = post_path
         .strip_prefix(content_dir)?
         .to_str()
-        .ok_or(anyhow::anyhow!("Invalid path"))?
+        .ok_or(anyhow!("Invalid path"))?
         .strip_suffix(".typ")
-        .ok_or(anyhow::anyhow!("Not a .typ file"))?;
+        .ok_or(anyhow!("Not a .typ file"))?;
 
     let output_path = output_dir.join(relative_path);
     fs::create_dir_all(&output_path)?;
 
-    let html_path = if path.file_name().is_some_and(|p| p == "home.typ") {
+    let html_path = if post_path.file_name().is_some_and(|p| p == "home.typ") {
         config.build.output_dir.join("index.html")
     } else {
         output_path.join("index.html")
@@ -119,17 +119,17 @@ pub fn compile_post(path: &Path, config: &SiteConfig) -> Result<()> {
         .arg(&config.build.root_path)
         .arg("--root")
         .arg(&config.build.root_path)
-        .arg(path)
+        .arg(post_path)
         .arg(&html_path)
         .output()?;
 
     if !output.status.success() {
         let error_msg = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("Failed to compile {}: {}", path.display(), error_msg);
+        anyhow::bail!("Failed to compile {}: {}", post_path.display(), error_msg);
     }
 
     if config.build.minify {
-        let html_content = fs::read_to_string(&html_path)?;
+        let html_content = fs::read_to_string(&html_path).context("AAA")?;
         let minified_content = minify_html::minify(html_content.as_bytes(), &minify_html::Cfg::new());
         let content = String::from_utf8_lossy(&minified_content).to_string();
         fs::write(&html_path, content)?;
@@ -146,7 +146,7 @@ pub fn copy_asset(path: &Path, config: &SiteConfig, should_wait_until_stable: bo
     let relative_path = path
         .strip_prefix(assets_dir)?
         .to_str()
-        .ok_or(anyhow::anyhow!("Invalid path"))?;
+        .ok_or(anyhow!("Invalid path"))?;
 
     let output_path = output_dir.join(relative_path);
 

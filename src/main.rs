@@ -29,14 +29,15 @@ async fn main() -> Result<()> {
         } else {
             SiteConfig::default()
         }
-        .update_wiht_cli_settings(cli);
+        .update_wiht_cli(cli);
         Box::leak(Box::new(config))
     };
-
+    
     check_typst_installed()?;
 
     if cli.command_is_init() { new_site(&config.build.root_path)? }
     if cli.command_is_built() { build_site(config)? }
+
     if cli.command_is_deploy() { deploy_site(config)? }
     if cli.command_is_serve() { serve_site(config).await? }
 

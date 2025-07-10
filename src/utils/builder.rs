@@ -1,4 +1,4 @@
-use std::{env, fs, path::{Path, PathBuf}, process::Command};
+use std::{fs, path::{Path, PathBuf}, process::Command};
 use anyhow::{anyhow, Context, Result};
 use crate::{config::SiteConfig, log};
 use crate::utils::watcher::wait_until_stable;
@@ -47,50 +47,6 @@ where
                 Ok(())
             }
         })
-}
-
-pub fn process_posts_in_parallel(files: &[&Path], config: &SiteConfig) -> Result<()> {
-    files
-        .par_iter()
-        .try_for_each(|path| compile_post(path, config))
-}
-
-pub fn copy_assets_in_parallel(files: &[&Path], config: &SiteConfig, should_wait_until_stable: bool) -> Result<()> {
-    files.par_iter().try_for_each(|path| copy_asset(path, config, should_wait_until_stable))
-}
-
-pub fn process_watched_files(files: &[PathBuf], config: &SiteConfig) -> Result<()> {
-    let posts_files: Vec<_> = files
-        .par_iter()
-        .filter(|p| p.is_file() && p.extension().and_then(|s| s.to_str()) == Some("typ"))
-        .map(|p| p.as_path())
-        .collect();
-
-    // println!("Before");
-
-    let assets_files: Vec<_> = files
-        .par_iter()
-        // .inspect(|x| println!("{:?}", x))
-        .filter(|p| {
-            p.is_file()
-                && p.strip_prefix(env::current_dir().unwrap())
-                    .unwrap()
-                    .starts_with(&config.build.assets_dir)
-        })
-        .map(|p| p.as_path())
-        .collect();
-
-    // println!("{:?}", assets_files);
-
-    if !posts_files.is_empty() {
-        process_posts_in_parallel(&posts_files, config)?;
-    }
-
-    if !assets_files.is_empty() {
-        copy_assets_in_parallel(&assets_files, config, true)?;
-    }
-
-    Ok(())
 }
 
 pub fn compile_post(post_path: &Path, config: &SiteConfig) -> Result<()> {

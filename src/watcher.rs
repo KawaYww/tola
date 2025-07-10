@@ -1,4 +1,4 @@
-use crate::{config::SiteConfig, log, utils::builder::process_watched_files};
+use crate::{config::SiteConfig, log, utils::watcher::process_watched_files};
 use anyhow::{Context, Result};
 use notify::{Event, EventKind, RecursiveMode, Watcher};
 use std::{path::PathBuf, time::{Duration, Instant}};
@@ -42,7 +42,6 @@ pub fn watch_for_changes_blocking(config: &'static SiteConfig, mut shutdown_rx: 
                 if should_process_event(&event) && last_event_time.elapsed() > debounce_duration {
                     last_event_time = Instant::now();
                     std::thread::spawn(move || {
-
                         match handle_files(&event.paths, config) {
                             Ok(()) => (),
                             Err(e) => log!("watcher", "Error: {:?}", e),

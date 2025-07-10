@@ -34,6 +34,7 @@ pub mod serde_defaults {
         use std::path::PathBuf;
 
         pub fn language() -> String { "zh-Hans".into() }   
+        pub fn typst_command() -> String { "typst".into() }   
         pub fn tailwind_command() -> String { "tailwindcss".into() }   
         pub fn root_path() -> PathBuf { "./".into() }
         pub fn content_dir() -> PathBuf { "content".into() }
@@ -52,7 +53,7 @@ pub mod serde_defaults {
         pub mod github {
             use std::path::PathBuf;
 
-            pub fn remote() -> String { "https://alice.com".into() }
+            pub fn remote() -> String { "https://github.com/alice/alice.github.io".into() }
             pub fn branch() -> String { "main".into() }
             pub fn token_path() -> PathBuf { "~/xxx/xxx/.github-token-in-this-file".into() }
         }
@@ -125,13 +126,17 @@ pub struct BuildConfig {
     #[educe(Default = serde_defaults::build::assets_dir())]
     pub assets_dir: PathBuf,
 
+    // The name of typst command
+    #[serde(default = "serde_defaults::build::typst_command")]
+    #[educe(Default = serde_defaults::build::typst_command())]
+    pub typst_command: String,
 
     // enable tailwindcss support
     #[serde(default = "serde_defaults::r#true")]
     #[educe(Default = true)]
     pub tailwind_support: bool,
 
-    // enable tailwindcss support
+    // The name of tailwind command
     #[serde(default = "serde_defaults::build::tailwind_command")]
     #[educe(Default = serde_defaults::build::tailwind_command())]
     pub tailwind_command: String,
@@ -206,17 +211,12 @@ pub struct GithubProvider {
     #[educe(Default = serde_defaults::deploy::github::branch())]
     pub branch: String,
 
+    // Warning: Be carefully if you enable this option
+    // Warning: Not pushing your token into public repo
     // The provider to use for deployment
     #[serde(default = "serde_defaults::deploy::github::token_path")]
     #[educe(Default = serde_defaults::deploy::github::token_path())]
     pub token_path: PathBuf,
-
-    // Warning: Be carefully if you enable this option
-    // Warning: Not pushing your token into public repo
-    // The provider to use for deployment
-    #[serde(default = "serde_defaults::r#false")]
-    #[educe(Default = serde_defaults::r#false())]
-    pub relative_token_path: bool,
 }
 
 // `[deploy.cloudflare]` in toml
@@ -279,9 +279,9 @@ impl SiteConfig {
     }
 
     #[rustfmt::skip]
-    pub fn update_wiht_cli(mut self, cli: &Cli) -> Self {       
+    pub fn update_with_cli(mut self, cli: &Cli) -> Self {       
         self.update_path_with_root(&cli.root, cli);
-
+        
         self.build.minify = cli.minify;
         self.build.tailwind_support = cli.tailwind_support;
         self.build.tailwind_command = cli.tailwind_command.to_owned();
@@ -309,6 +309,11 @@ impl SiteConfig {
         self.build.content_dir = root.join(&cli.content);
         self.build.output_dir = root.join(&cli.output);
         self.build.assets_dir = root.join(&cli.assets);
+
+        let token_path = &self.deploy.git_provider.token_path;
+        if token_path.is_relative() {
+            self.deploy.git_provider.token_path = root.join(token_path);
+        }
     }
     
     fn validate(&self) -> Result<(), ConfigError> {

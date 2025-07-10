@@ -1,4 +1,4 @@
-use crate::{config::SiteConfig, log, utils::{self, compile_post, copy_asset}};
+use crate::{config::SiteConfig, log, utils::builder::{compile_post, copy_asset, process_files}};
 use anyhow::{anyhow, Context, Result};
 use std::{fs, thread};
 
@@ -16,13 +16,13 @@ pub fn build_site(config: &'static SiteConfig) -> Result<()> {
     thread::scope(|s| {
         // Process all posts
         let posts_handle = s.spawn(|| {
-            utils::process_files(&config.build.content_dir,  config, &|path| path.extension().is_some_and(|ext| ext == "typ"), &compile_post)
+            process_files(&config.build.content_dir,  config, &|path| path.extension().is_some_and(|ext| ext == "typ"), &compile_post)
                 .context("Failed to compile all posts")
         });
 
         // Copy assets
         let assets_handle = s.spawn(|| {
-            utils::process_files(&config.build.assets_dir,  config, &|_| true, &|path, config| copy_asset(path, config, false))
+            process_files(&config.build.assets_dir,  config, &|_| true, &|path, config| copy_asset(path, config, false))
                 .context("Failed to copy all assets")
         });
 

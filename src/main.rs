@@ -3,7 +3,6 @@ mod cli;
 mod initer;
 mod deployer;
 mod config;
-mod log;
 mod server;
 mod utils;
 mod watcher;
@@ -16,6 +15,7 @@ use config::SiteConfig;
 use deployer::deploy_site;
 use initer::new_site;
 use server::serve_site;
+use utils::checker::check_typst_installed;
 
 #[rustfmt::skip]
 #[tokio::main]
@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
         Box::leak(Box::new(config))
     };
 
-    utils::check_typst_installed()?;
+    check_typst_installed()?;
 
     if cli.command_is_init() { new_site(&config.build.root_path)? }
     if cli.command_is_built() { build_site(config)? }

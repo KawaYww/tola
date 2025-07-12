@@ -144,7 +144,7 @@ pub struct BuildConfig {
     pub minify: bool,
 }
 
-// `[server]` in toml
+// `[serve]` in toml
 #[derive(Debug, Clone, Educe, Serialize, Deserialize)]
 #[educe(Default)]
 #[serde(deny_unknown_fields)]

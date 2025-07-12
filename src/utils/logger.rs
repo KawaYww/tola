@@ -6,7 +6,7 @@ macro_rules! log {
         use crossterm::{execute, terminal::{Clear, ClearType}, cursor::MoveUp};
 
         let module_lower = $module.to_lowercase();
-        let is_important = matches!(module_lower.as_str(), "builder" | "server" | "watcher" | "initer" | "deployer" | "commit" | "error");
+        let is_important = matches!(module_lower.as_str(), "builder" | "server" | "watcher" | "initer" | "deployer" | "commit" | "git" | "error");
         
         let colored_prefix = match module_lower.as_str() {
             "server" => format!("[{}]", $module).bright_blue().bold(),
